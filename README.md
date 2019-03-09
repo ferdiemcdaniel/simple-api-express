@@ -1,0 +1,1 @@
+Inspired by Scott Moss' FrontendMaster Class
