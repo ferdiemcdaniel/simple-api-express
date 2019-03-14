@@ -1,10 +1,7 @@
 export const config = {
   secrets: {
     jwt: 'learneverything',
-    temp: {
-      user: 'update247',
-      pass: 'fpj5732wk'
-    }
+    temp: {}
   },
   backend: {
     ci: {
