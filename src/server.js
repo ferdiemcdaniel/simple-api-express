@@ -39,24 +39,38 @@ const extractReferenceNumber = req => {
   return toReturn
 }
 
-const fetchPropertyStatus = referenceNumber => {
-  let auth = {
-    username: config.secrets.temp.user,
-    password: config.secrets.temp.pass
+const maskResult = status => {
+  switch (status) {
+    case 100:
+      return Math.floor(Math.random() * (199 - 100) + 100)
+    case 300:
+      return Math.floor(Math.random() * (399 - 300) + 300)
+    default:
+      return 200
   }
-  var start = new Date().getTime()
-  setTimeout(function() {
-    ddpClient(config.backend.dev, auth, referenceNumber)
-  }, 0)
 }
 
 app.post('/webhook-validate-new-booking', (req, res) => {
   let referenceNumber = extractReferenceNumber(req)
-  const status = fetchPropertyStatus(referenceNumber)
-  res.send({
-    message: 'success',
-    status: 'Pending',
-    errors: []
+  let auth = {
+    username: config.secrets.temp.user,
+    password: config.secrets.temp.pass
+  }
+  ddpClient(config.backend.dev, auth, referenceNumber, (error, success) => {
+    if (error) {
+      res.status(500).json({
+        reservationsresponse: {
+          updated: 'Fail',
+          error: error
+        }
+      })
+    } else {
+      res.status(200).json({
+        reservationsresponse: {
+          status: maskResult(success.result)
+        }
+      })
+    }
   })
 })
 

@@ -1,6 +1,6 @@
 import DDPClient from 'ddp'
 
-let ddpClient = (config, auth, referenceNumber) => {
+let ddpClient = (config, auth, referenceNumber, done) => {
   let ddpClient = new DDPClient({
     host: config.hostname,
     port: config.port,
@@ -19,29 +19,30 @@ let ddpClient = (config, auth, referenceNumber) => {
       }
       ddpClient.call('login', [authObj], (err, res) => {
         if (!err) {
-          console.log(res)
-          console.log('logged in ' + referenceNumber)
           ddpClient.call(
             'validate_booking_papertrail',
-            referenceNumber,
+            [{ reference_num: referenceNumber }],
             (error, result) => {
-              console.log(result)
               if (!error) {
-                console.log(result)
+                callback(null, { result })
               } else {
-                console.log(error)
+                callback(err, null)
               }
             }
           )
         } else {
-          console.log('1')
-          console.log('error', err)
+          callback(err, res)
         }
       })
     } else {
-      console.log(error)
+      callback(error, null)
     }
   })
+
+  function callback(error, success) {
+    ddpClient.close()
+    done(error, success)
+  }
 }
 
 export default ddpClient
