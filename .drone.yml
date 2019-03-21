@@ -42,3 +42,4 @@ pipeline:
   slack:
     image: docker.1day.host/1day/drone-slack
     webhook: https://hooks.slack.com/services/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
+
