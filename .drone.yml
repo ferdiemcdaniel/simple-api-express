@@ -1,0 +1,45 @@
+pipeline:
+  restore-cache:
+    image: drillster/drone-volume-cache
+    restore: true
+    mount:
+      - ./node_modules
+    volumes:
+      - /tmp/drone-cache:/cache
+
+  build:
+    image: node:8
+    environment:
+      - NODE_ENV=production
+    commands:
+      - yarn install --prefer-offline --production
+      - yarn build
+
+  rebuild-cache:
+    image: drillster/drone-volume-cache
+    rebuild: true
+    mount:
+      - ./node_modules
+    volumes:
+      - /tmp/drone-cache:/cache
+
+  generate_deployment_strategy:
+    image: docker.1day.host/1day/drone-deployment-strategy
+    service_name: vader
+    repo: docker.1day.host/1day/vader
+    registry: https://docker.1day.host
+
+  publish:
+    image: plugins/docker
+    secrets: [ docker_username, docker_password ]
+    env_file: ".env"
+
+  update_service:
+    image: docker.1day.host/1day/drone-service-update
+    secrets: [ docker_username, docker_password ]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      
+  slack:
+    image: docker.1day.host/1day/drone-slack
+    webhook: https://hooks.slack.com/services/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
