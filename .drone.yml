@@ -9,6 +9,8 @@ pipeline:
 
   build:
     image: node:8
+    environment:
+      - SOME_ENV=some_env_value
     commands:
       - yarn
       - ls ./node_modules/.bin

@@ -77,7 +77,7 @@ app.post('/webhook-validate-new-booking', (req, res) => {
 app.post('/webhook/new-booking', (req, res) => {})
 
 export const start = () => {
-  let port = 5000
+  let port = 8080
   app.listen(port, () => {
     console.log('Server started on ' + port)
   })
