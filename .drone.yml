@@ -9,12 +9,10 @@ pipeline:
 
   build:
     image: node:8
-    environment:
-      - NODE_ENV=production
     commands:
       - yarn
-      - yarn build
       - ls ./node_modules/.bin
+      - yarn build
 
   rebuild-cache:
     image: drillster/drone-volume-cache
