@@ -12,7 +12,7 @@ pipeline:
     environment:
       - NODE_ENV=production
     commands:
-      - yarn install --prefer-offline --production
+      - yarn install --prefer-offline
       - yarn build
 
   rebuild-cache:
