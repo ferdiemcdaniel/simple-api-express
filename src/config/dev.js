@@ -1,7 +1,10 @@
 export const config = {
   secrets: {
     jwt: 'learneverything',
-    temp: {}
+    temp: {
+      user: process.env.CONNECT_USER,
+      pass: process.env.CONNECT_PASS
+    }
   },
   backend: {
     ci: {
@@ -15,5 +18,6 @@ export const config = {
       ssl: false
     }
   },
+
   dbUrl: 'mongodb://localhost:27017/api-design'
 }
