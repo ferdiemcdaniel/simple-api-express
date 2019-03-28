@@ -13,8 +13,6 @@ const extractReferenceNumber = req => {
           message.indexOf('{'),
           message.indexOf('}') + 1
         )
-        console.log(extractedJson)
-        console.log(typeof extractedJson)
         const { reference } = JSON.parse(extractedJson)
         if (reference && typeof reference === 'string') {
           toReturn = reference
@@ -42,10 +40,9 @@ const newBooking = (req, res) => {
     username: config.secrets.temp.user,
     password: config.secrets.temp.pass
   }
-  ddpClient(config.backend.dev, auth, referenceNumber, (error, success) => {
+  ddpClient(config.backend.ci, auth, referenceNumber, (error, success) => {
     let status = ''
-    if (error) {
-      console.log(error)
+    if (error || success === null) {
       status = maskResult(200)
       let msg = `Vader Log: ${config.rootUrl} ${JSON.stringify({
         event: 'Validated New Booking',
@@ -59,7 +56,6 @@ const newBooking = (req, res) => {
         }
       })
     } else {
-      console.log(success)
       status = maskResult(success.result)
       let msg = `Vader Log: ${config.rootUrl} ${JSON.stringify({
         event: 'Validated New Booking',
@@ -84,7 +80,7 @@ const cancelledBooking = (req, res) => {
   }
   ddpClient(config.backend.ci, auth, referenceNumber, (error, success) => {
     let status = ''
-    if (error) {
+    if (error || success === null) {
       status = maskResult(200)
       let msg = `Vader Log: ${config.rootUrl} ${JSON.stringify({
         event: 'Validated Cancelled Booking',
@@ -98,7 +94,7 @@ const cancelledBooking = (req, res) => {
         }
       })
     } else {
-      status = maskResult(success.result)
+      status = maskResult(300)
       let msg = `Vader Log: ${config.rootUrl} ${JSON.stringify({
         event: 'Validated Cancelled Booking',
         status,
