@@ -46,6 +46,7 @@ const newBooking = (req, res) => {
       error ||
       success === null ||
       success.result === undefined ||
+      !Array.isArray(success.result) ||
       success.result.length === 0
     ) {
       status = maskResult(200)
@@ -62,22 +63,20 @@ const newBooking = (req, res) => {
       })
     } else {
       let toReturn = []
-      if (Array.isArray(success.result)) {
-        success.result.forEach(status => {
-          let reservationStatus = maskResult(status.status)
-          let msgData = {
-            event: 'Validated New Booking',
-            status: reservationStatus,
-            message: 'Booking FOUND',
-            'check-in-date': status.checkin_date,
-            'check-out-date': status.checkout_date,
-            guest: status.guest
-          }
-          let msg = `Vader Log: ${config.rootUrl} ${JSON.stringify(msgData)}`
-          logger.property_program(status.property_name, 'info', msg)
-          toReturn.push(msgData)
-        })
-      }
+      success.result.forEach(status => {
+        let reservationStatus = maskResult(status.status)
+        let msgData = {
+          event: 'Validated New Booking',
+          status: reservationStatus,
+          message: 'Booking FOUND',
+          'check-in-date': status.checkin_date,
+          'check-out-date': status.checkout_date,
+          guest: status.guest
+        }
+        let msg = `Vader Log: ${config.rootUrl} ${JSON.stringify(msgData)}`
+        logger.property_program(status.property_name, 'info', msg)
+        toReturn.push(msgData)
+      })
       res.status(200).json({ data: toReturn })
     }
   })
@@ -95,6 +94,7 @@ const cancelledBooking = (req, res) => {
       error ||
       success === null ||
       success.result === undefined ||
+      !Array.isArray(success.result) ||
       success.result.length === 0
     ) {
       status = maskResult(200)
@@ -111,22 +111,20 @@ const cancelledBooking = (req, res) => {
       })
     } else {
       let toReturn = []
-      if (Array.isArray(success.result)) {
-        success.result.forEach(status => {
-          let reservationStatus = maskResult(status.status)
-          let msgData = {
-            event: 'Validated Cancelled Booking',
-            status: reservationStatus,
-            message: 'Booking FOUND',
-            'check-in-date': status.checkin_date,
-            'check-out-date': status.checkout_date,
-            guest: status.guest
-          }
-          let msg = `Vader Log: ${config.rootUrl} ${JSON.stringify(msgData)}`
-          logger.property_program(status.property_name, 'info', msg)
-          toReturn.push(msgData)
-        })
-      }
+      success.result.forEach(status => {
+        let reservationStatus = maskResult(status.status)
+        let msgData = {
+          event: 'Validated Cancelled Booking',
+          status: reservationStatus,
+          message: 'Booking FOUND',
+          'check-in-date': status.checkin_date,
+          'check-out-date': status.checkout_date,
+          guest: status.guest
+        }
+        let msg = `Vader Log: ${config.rootUrl} ${JSON.stringify(msgData)}`
+        logger.property_program(status.property_name, 'info', msg)
+        toReturn.push(msgData)
+      })
       res.status(200).json({ data: toReturn })
     }
   })
