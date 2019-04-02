@@ -3,7 +3,10 @@ import ddpClient from '../../utils/ddp'
 import logger from '../../utils/logger'
 
 const empireLink = config.backend
-console.log(empireLink)
+const auth = {
+  username: config.secrets.temp.user,
+  password: config.secrets.temp.pass
+}
 const extractReferenceNumber = req => {
   const { payload } = req.body
   let toReturn = []
@@ -28,20 +31,22 @@ const extractReferenceNumber = req => {
 const maskResult = status => {
   switch (status) {
     case 100:
-      return Math.floor(Math.random() * (199 - 100) + 100)
+      return {
+        status: Math.floor(Math.random() * (199 - 100) + 100),
+        message: 'Booking FOUND'
+      }
     case 300:
-      return Math.floor(Math.random() * (399 - 300) + 300)
+      return {
+        status: Math.floor(Math.random() * (399 - 300) + 300),
+        message: 'Booking FOUND'
+      }
     default:
-      return 200
+      return { status: 200, message: 'Booking NOT FOUND' }
   }
 }
 
 const newBooking = (req, res) => {
   let referenceNumbers = extractReferenceNumber(req)
-  let auth = {
-    username: config.secrets.temp.user,
-    password: config.secrets.temp.pass
-  }
   ddpClient(empireLink, auth, referenceNumbers, (error, success) => {
     let status = ''
     if (
@@ -55,9 +60,13 @@ const newBooking = (req, res) => {
       let msg = `Vader Log: ${config.rootUrl} ${JSON.stringify({
         event: 'Validated New Booking',
         status,
-        message: 'Booking NOT FOUND'
+        message: `Booking${referenceNumbers.length > 1 ? 's' : ''} NOT FOUND`,
+        reference:
+          referenceNumbers.length > 1
+            ? referenceNumbers.join()
+            : referenceNumbers
       })}`
-      logger.property_program('Makati Riverside Inn', 'info', msg)
+      logger.property_program('', 'info', msg)
       res.status(200).json({
         reservationsresponse: {
           status
@@ -66,14 +75,21 @@ const newBooking = (req, res) => {
     } else {
       let toReturn = []
       success.result.forEach(status => {
+        let msgData
         let reservationStatus = maskResult(status.status)
-        let msgData = {
+        msgData = {
           event: 'Validated New Booking',
-          status: reservationStatus,
-          message: 'Booking FOUND',
-          'check-in-date': status.checkin_date,
-          'check-out-date': status.checkout_date,
-          guest: status.guest
+          status: reservationStatus.status,
+          message: reservationStatus.message,
+          reference: status.reference
+        }
+        if (reservationStatus.status !== 200) {
+          msgData = {
+            ...msgData,
+            'check-in-date': status.checkin_date,
+            'check-out-date': status.checkout_date,
+            guest: status.guest
+          }
         }
         let msg = `Vader Log: ${config.rootUrl} ${JSON.stringify(msgData)}`
         logger.property_program(status.property_name, 'info', msg)
@@ -86,10 +102,6 @@ const newBooking = (req, res) => {
 
 const cancelledBooking = (req, res) => {
   let referenceNumbers = extractReferenceNumber(req)
-  let auth = {
-    username: config.secrets.temp.user,
-    password: config.secrets.temp.pass
-  }
   ddpClient(empireLink, auth, referenceNumbers, (error, success) => {
     let status = ''
     if (
@@ -100,12 +112,17 @@ const cancelledBooking = (req, res) => {
       success.result.length === 0
     ) {
       status = maskResult(200)
+      status = maskResult(200)
       let msg = `Vader Log: ${config.rootUrl} ${JSON.stringify({
-        event: 'Validated Cancelled Booking',
+        event: 'Validated New Booking',
         status,
-        message: 'Booking NOT FOUND'
+        message: `Booking${referenceNumbers.length > 1 ? 's' : ''} NOT FOUND`,
+        reference:
+          referenceNumbers.length > 1
+            ? referenceNumbers.join()
+            : referenceNumbers
       })}`
-      logger.property_program('Makati Riverside Inn', 'info', msg)
+      logger.property_program('', 'info', msg)
       res.status(200).json({
         reservationsresponse: {
           status
@@ -114,14 +131,21 @@ const cancelledBooking = (req, res) => {
     } else {
       let toReturn = []
       success.result.forEach(status => {
+        let msgData
         let reservationStatus = maskResult(status.status)
-        let msgData = {
+        msgData = {
           event: 'Validated Cancelled Booking',
-          status: reservationStatus,
-          message: 'Booking FOUND',
-          'check-in-date': status.checkin_date,
-          'check-out-date': status.checkout_date,
-          guest: status.guest
+          status: reservationStatus.status,
+          message: reservationStatus.message,
+          reference: status.reference
+        }
+        if (reservationStatus.status !== 200) {
+          msgData = {
+            ...msgData,
+            'check-in-date': status.checkin_date,
+            'check-out-date': status.checkout_date,
+            guest: status.guest
+          }
         }
         let msg = `Vader Log: ${config.rootUrl} ${JSON.stringify(msgData)}`
         logger.property_program(status.property_name, 'info', msg)
