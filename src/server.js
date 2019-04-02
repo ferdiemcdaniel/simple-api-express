@@ -27,7 +27,7 @@ app.use('/config/lookup', (req, res) => {
 })
 
 export const start = () => {
-  let port = 5050
+  let port = 8080
   app.listen(port, () => {
     console.log('Server started on ' + port)
   })
