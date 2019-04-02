@@ -2,6 +2,8 @@ import config from '../../config'
 import ddpClient from '../../utils/ddp'
 import logger from '../../utils/logger'
 
+const empireLink = config.backend
+console.log(empireLink)
 const extractReferenceNumber = req => {
   const { payload } = req.body
   let toReturn = []
@@ -40,7 +42,7 @@ const newBooking = (req, res) => {
     username: config.secrets.temp.user,
     password: config.secrets.temp.pass
   }
-  ddpClient(config.backend.ci, auth, referenceNumbers, (error, success) => {
+  ddpClient(empireLink, auth, referenceNumbers, (error, success) => {
     let status = ''
     if (
       error ||
@@ -88,7 +90,7 @@ const cancelledBooking = (req, res) => {
     username: config.secrets.temp.user,
     password: config.secrets.temp.pass
   }
-  ddpClient(config.backend.ci, auth, referenceNumbers, (error, success) => {
+  ddpClient(empireLink, auth, referenceNumbers, (error, success) => {
     let status = ''
     if (
       error ||

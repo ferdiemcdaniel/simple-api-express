@@ -11,9 +11,7 @@ if (config.isTest) {
     error: (...arg) => console.error(arg)
   }
 } else {
-  const paperTrailConfig = config.isDev
-    ? config.papertrail.ci
-    : config.papertrail.prod
+  const paperTrailConfig = config.papertrail
   var winstonPapertrail = new winston.transports.Papertrail({
     host: paperTrailConfig.host,
     port: paperTrailConfig.port,

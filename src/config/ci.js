@@ -7,14 +7,12 @@ export const config = {
     }
   },
   backend: {
-    hostname: 'localhost',
-    port: 5000,
-    ssl: false
+    hostname: 'ci.1day.io',
+    port: 443,
+    ssl: true
   },
   papertrail: {
     host: 'logs6.papertrailapp.com',
     port: 36774
-  },
-
-  dbUrl: 'mongodb://localhost:27017/api-design'
+  }
 }

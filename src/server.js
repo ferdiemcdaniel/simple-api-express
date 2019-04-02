@@ -19,8 +19,15 @@ app.get('/', (req, res) => {
 
 app.use('/webhook/booking', bookingRouter)
 
+app.use('/config/lookup', (req, res) => {
+  return res.status(201).json({
+    url: process.env.ROOT_URL,
+    env: process.env.NODE_ENV
+  })
+})
+
 export const start = () => {
-  let port = 8080
+  let port = 5050
   app.listen(port, () => {
     console.log('Server started on ' + port)
   })
