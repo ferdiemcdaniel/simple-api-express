@@ -1,9 +1,8 @@
 import express from 'express'
 import { json, urlencoded } from 'body-parser'
 import morgan from 'morgan'
-import config from './config'
 import cors from 'cors'
-import ddpClient from './utils/ddp'
+import bookingRouter from './resources/booking/booking.router'
 
 export const app = express()
 
@@ -18,63 +17,14 @@ app.get('/', (req, res) => {
   res.send('Welcome to vader')
 })
 
-const extractReferenceNumber = req => {
-  const { payload } = req.body
-  let toReturn = ''
-  if (payload && typeof payload === 'string') {
-    const { events } = JSON.parse(payload)
-    events.forEach(({ message }) => {
-      if (message && typeof message === 'string') {
-        let extractedJson = message.substr(
-          message.indexOf('{'),
-          message.indexOf('}') + 1
-        )
-        const { reference } = JSON.parse(extractedJson)
-        if (reference && typeof reference === 'string') {
-          toReturn = reference
-        }
-      }
-    })
-  }
-  return toReturn
-}
+app.use('/webhook/booking', bookingRouter)
 
-const maskResult = status => {
-  switch (status) {
-    case 100:
-      return Math.floor(Math.random() * (199 - 100) + 100)
-    case 300:
-      return Math.floor(Math.random() * (399 - 300) + 300)
-    default:
-      return 200
-  }
-}
-
-app.post('/webhook-validate-new-booking', (req, res) => {
-  let referenceNumber = extractReferenceNumber(req)
-  let auth = {
-    username: config.secrets.temp.user,
-    password: config.secrets.temp.pass
-  }
-  ddpClient(config.backend.dev, auth, referenceNumber, (error, success) => {
-    if (error) {
-      res.status(500).json({
-        reservationsresponse: {
-          updated: 'Fail',
-          error: error
-        }
-      })
-    } else {
-      res.status(200).json({
-        reservationsresponse: {
-          status: maskResult(success.result)
-        }
-      })
-    }
+app.use('/config/lookup', (req, res) => {
+  return res.status(201).json({
+    url: process.env.ROOT_URL,
+    env: process.env.NODE_ENV
   })
 })
-
-app.post('/webhook/new-booking', (req, res) => {})
 
 export const start = () => {
   let port = 8080
