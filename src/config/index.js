@@ -19,7 +19,6 @@ const baseConfig = {
     port: 36774
   }
 }
-console.log(env)
 let envConfig = {}
 
 switch (env) {
